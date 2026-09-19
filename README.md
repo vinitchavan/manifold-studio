@@ -6,9 +6,34 @@ An initial Python research package by Vinit K. Chavan. Create Cartesian products
 such as `Sphere() * Torus() * Plane()`, map your vectors with a fitted transform,
 inspect 3D product/factor views and tangent directions, and export numerical data.
 
-This repository comes before the planned web application. Version 0.1 is a
-tested numerical foundation and interactive plotting API, not a neural manifold
-training framework. The package name has not been reserved or published on PyPI.
+This repository comes before the planned web application. Version 0.2 adds
+optional PyTorch projection-head training and selectable research losses to the
+NumPy geometry and interactive plotting foundation. The package has not been
+published on PyPI.
+
+## Choose a loss and train
+
+Seven selectable objectives include the original squared Euclidean triplet,
+geodesic/ambient triplets, distance alignment, spectral query-energy separation,
+energy concentration, and an experimental repaired SMTL combination.
+
+```bash
+python -m pip install -e ".[train,viz]"
+python examples/train_projection.py --loss smtl --geometry 'sphere*torus'
+```
+
+```python
+from manifold_studio import Sphere, Torus
+from manifold_studio.losses import available_losses, make_loss
+objective = make_loss("smtl", Sphere() * Torus(), alpha=1, beta=0.5, gamma=0.3)
+print(available_losses())
+```
+
+See [loss choices, formulas, training, and historical audit](docs/LOSSES.md) and
+[the training notebook](notebooks/02_selectable_losses.ipynb). Spectral components
+use fixed detached graph supervision; these are experimental adaptations, not
+reproductions of old benchmark results. Train only on training data and compare
+on a held-out set before claiming an improvement.
 
 ## Install from this repository
 

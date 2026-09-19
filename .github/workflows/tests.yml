@@ -14,3 +14,15 @@ jobs:
       - run: python -m pip install -e ".[viz]"
       - run: python -m unittest discover -s tests -v
       - run: manifold-studio demo --no-html --out outputs/ci
+
+  train-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install -e ".[train,viz]"
+      - run: python -m unittest discover -s tests -v
+      - run: python examples/train_projection.py --loss smtl --geometry 'sphere*torus' --steps 10

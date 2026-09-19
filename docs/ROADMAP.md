@@ -12,13 +12,22 @@
 - Neighborhood preservation and explicit train/test kNN comparisons.
 - Optional sentence encoding adapter and synthetic offline demo.
 
+## Implemented in 0.2
+
+- Seven named loss choices with explicit metric and supervision requirements.
+- PyTorch parametrizations and geometry-specific distances matching NumPy.
+- A projection MLP shared by documents and queries, train-only input normalization.
+- Fixed-graph SMTL adaptation with real spectral energies and component logging.
+- Portable trained-weight bundles and a synthetic held-out tutorial.
+- Source audit with notebook/commit references and repaired formula differences.
+
 ## Next package milestones
 
 1. Contextual-token spans, encoder provenance and model caching.
 2. Reusable higher-dimensional display slices and persistent factor weights.
 3. Surface path solvers with convergence tests, then parallel transport.
 4. Sparse/ANN neighbor computation for larger datasets.
-5. Trained projection heads with clean split-before-fit supervision.
+5. Real-dataset loss ablations, validation-based selection, and multiple-seed retrieval benchmarks.
 6. SFM plugin with actual byte accounting, paired retrieval metrics and cached graphs.
 7. Experimental semantic edit transport and composition-held-out tests.
 

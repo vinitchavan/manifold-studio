@@ -46,6 +46,7 @@ class Embedding:
     texts: np.ndarray
     display_mean: np.ndarray
     display_components: np.ndarray
+    mapping: str = "fitted PCA + parametrization"
 
     def __post_init__(self):
         self.coordinates = matrix(self.coordinates, self.geometry.ambient_dim, "coordinates")
@@ -90,7 +91,7 @@ class Embedding:
 
     def save(self, path):
         metadata = {"format": "manifold-studio-embedding", "version": 1,
-                    "geometry": self.geometry.spec(), "mapping": "fitted PCA + parametrization",
+                    "geometry": self.geometry.spec(), "mapping": self.mapping,
                     "display": "reference-fitted PCA; distances are distorted"}
         _write_npz(path, coordinates=self.coordinates, parameters=self.parameters,
                    source=self.source, texts=self.texts, display_mean=self.display_mean,
@@ -103,7 +104,8 @@ class Embedding:
             if m.get("format") != "manifold-studio-embedding" or m.get("version") != 1:
                 raise ValueError("Unsupported embedding bundle")
             return cls(geometry_from_spec(m["geometry"]), *(b[k].copy() for k in
-                       ["coordinates", "parameters", "source", "texts", "display_mean", "display_components"]))
+                       ["coordinates", "parameters", "source", "texts", "display_mean", "display_components"]),
+                       mapping=m.get("mapping", "fitted PCA + parametrization"))
 
     def export_csv(self, path):
         """Export full ambient coordinates, not just the 3D display."""

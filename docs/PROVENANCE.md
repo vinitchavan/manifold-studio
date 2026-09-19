@@ -43,3 +43,9 @@ Useful upstream documentation:
 Optional dependencies carry their own licenses; the generated standalone demo
 contains Plotly's JavaScript distribution and its license notices. The package's
 MIT license covers the new package source, not externally downloaded model weights.
+
+## v0.2 loss integration
+
+See [LOSSES.md](LOSSES.md) for the source-by-source audit, historical commit links,
+formula changes and exclusions. Optional training code adapts the original
+triplet and corrected SFM objectives. It does not claim the old notebook results.
