@@ -26,3 +26,5 @@ jobs:
       - run: python -m pip install -e ".[train,viz]"
       - run: python -m unittest discover -s tests -v
       - run: python examples/train_projection.py --loss smtl --geometry 'sphere*torus' --steps 10
+      - run: python -m pip install -r backend/requirements.txt
+      - run: python -m unittest discover -s backend/tests -v

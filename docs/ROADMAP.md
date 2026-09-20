@@ -31,7 +31,14 @@
 6. SFM plugin with actual byte accounting, paired retrieval metrics and cached graphs.
 7. Experimental semantic edit transport and composition-held-out tests.
 
-## Application milestone
+## Local application implemented
+
+Separate `backend/` FastAPI and `frontend/` UI folders now provide bounded
+synchronous mapping/training, geometry products, Plotly views, loss curves and
+ZIP exports. Sentence mode is optional. The UI does not yet provide token-level
+embeddings, held-out accuracy, persistent jobs, authentication or hosted deployment.
+
+## Next application milestone
 
 Build a geometry playground over this package: drag factors into a product,
 paste/upload inputs, select arrow targets with a click, compare metric panels,

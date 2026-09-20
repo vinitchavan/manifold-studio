@@ -61,3 +61,14 @@ Example results (synthetic only, not paper benchmarks):
 
 No real NLP benchmark, CUDA run, browser visual inspection, or superiority claim
 was added. GitHub CI status should be checked separately from these local results.
+
+## Local web workbench — 20 September 2026
+
+- Six API integration tests pass: catalog/static serving, product plots, numeric
+  export/reload, mocked sentence encoding, training, validation and busy response.
+- Frontend JavaScript syntax check passes (`node --check frontend/app.js`).
+- Uvicorn starts successfully on loopback port 8000.
+- Browser visual/click testing remains unverified: the available cloud browser
+  blocked navigation to the local loopback server with ERR_BLOCKED_BY_CLIENT.
+- Real sentence model downloading/encoding remains unverified.
+- The app is a local single-user prototype, not a deployed public service.

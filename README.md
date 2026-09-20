@@ -6,10 +6,26 @@ An initial Python research package by Vinit K. Chavan. Create Cartesian products
 such as `Sphere() * Torus() * Plane()`, map your vectors with a fitted transform,
 inspect 3D product/factor views and tangent directions, and export numerical data.
 
-This repository comes before the planned web application. Version 0.2 adds
+The repository includes a local FastAPI web playground. The core package adds
 optional PyTorch projection-head training and selectable research losses to the
 NumPy geometry and interactive plotting foundation. The package has not been
 published on PyPI.
+
+## Run the web playground
+
+```bash
+python -m pip install -e ".[viz,train]"
+python -m pip install -r backend/requirements.txt
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
+```
+
+Open **http://127.0.0.1:8000**. Compose up to three geometries, load vectors or
+use the demo, choose mapping/training, inspect 3D surfaces and tangent arrows,
+view loss curves, and download your embeddings. Sentence input additionally
+requires `.[text]` and downloads MiniLM on first use.
+
+Source folders: [FastAPI backend](backend/README.md) and [frontend UI](frontend/README.md).
+This is a local workbench; it is not deployed or configured for public multi-user hosting.
 
 ## Choose a loss and train
 
