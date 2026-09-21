@@ -186,36 +186,190 @@ under independent splits and equal supervision. Use validation data for geometry
 and loss selection; reserve test data for the final assessment. See
 [validation and limitations](docs/VALIDATION.md).
 
-## Food for thought: could context change the geometry of meaning?
+## Related work and the novelty boundary
 
-**What if understanding a word meant learning how its representation changes
-with context—not only where it sits in an embedding space?**
+Manifold Studio does **not** claim that non-Euclidean embeddings, product
+manifolds, complex-valued embeddings, or context-sensitive representations are
+new ideas by themselves. Each has substantial prior work:
 
-“Bank” beside a river and “bank” in a financial report give us a simple starting
-question. Could their relationship become easier to model through a change of
-phase, a movement across a surface, or an interaction between geometric factors?
-Could a useful representation capture both what stays consistent and what changes?
+- **Product / mixed-curvature manifolds.** Gu et al. (ICLR 2019) learned
+  representations in products of spherical, hyperbolic and Euclidean model
+  spaces and studied how the geometry of the embedding space can be matched to
+  heterogeneous data structure
+  ([paper](https://openreview.net/forum?id=HJxeWnCcF7)).
+- **Context-dependent representations.** Contextual word representations have
+  long modeled the fact that the representation of a word changes with its
+  linguistic context; ELMo is an important early example
+  ([Peters et al., NAACL 2018](https://aclanthology.org/N18-1202/)).
+- **Complex-valued embeddings.** Complex word embeddings have been explored in
+  NLP, including magnitude/phase-inspired representations
+  ([Li et al., 2018](https://aclanthology.org/W18-3006/)), and have since been
+  trained at substantially larger scale
+  ([Harvey et al., 2024](https://arxiv.org/abs/2412.13745)).
+- **Manifold structure inside language models.** Recent work reports shared
+  local/global geometry and lower-dimensional structure in language-model token
+  embeddings
+  ([Lee et al., 2025](https://arxiv.org/abs/2503.21073);
+  [Kataiwa et al., 2025](https://arxiv.org/abs/2503.02142)).
+- **Context as a transformation, not only a location.** Hu, Niu and Varma
+  (2026) explicitly formalize concept representations as point-cloud manifolds
+  and contextual transformations as vector fields in language models
+  ([paper](https://arxiv.org/abs/2607.04525)).
 
-One possibility is to explore complex-valued coordinates: magnitude and phase,
-or several complex planes acting together. Three complex coordinates would form
-$\\mathbb{C}^3$, a space with six real dimensions. Its quadrants and phase
-relationships offer things to investigate, but assigning them semantic meaning
-would itself need to be learned and tested. A coordinate choice alone does not
-create additional information.
+These results narrow the research question in a useful way. The interesting
+problem is no longer simply *whether* language representations can be placed in
+curved, product or complex spaces. The harder question is whether we can
+**discover which geometry is justified by a semantic phenomenon, learn the
+transformations acting on that geometry, and show that those choices improve
+generalization, interpretability or memory/retrieval behavior under independent
+evaluation**.
 
-**The opportunity is to make geometry something we can question, compose,
-train and inspect in one place.** Manifold Studio provides a working foundation:
-selectable surfaces, product spaces, losses, tangent views and reusable exports.
-The larger question is whether richer geometric structure can reveal useful
-relationships that our current choices fail to capture. A convincing answer
-could open a meaningful new research direction.
+Manifold Studio should therefore be read as an experimental workbench and a
+starting point for this question—not as a claim that manifold embeddings or
+geometric views of contextual meaning were invented here.
 
-This is an invitation, not a fixed blueprint. Bring an alternative interpretation,
-a small experiment, a relevant paper, a counterexample or a better mathematical
-question. We welcome contributions that help establish where the idea is
-distinctive, where it works, and where it breaks. Complex-valued extensions are
-not implemented yet, and novelty or breakthrough performance has not been
-established.
+## Food for thought: from choosing geometry to discovering it
+
+**What if understanding a word meant learning the transformation induced by
+context—not only where the resulting representation sits?**
+
+“Bank” beside a river and “bank” in a financial report provide a simple starting
+example. Modern contextual language models already produce different
+representations for these uses, and recent research shows that contextual
+changes themselves can exhibit structured geometric behavior. The open question
+for this project is more specific:
+
+> **Can we identify the geometric operator, topology or collection of factors
+> that best explains a semantic transformation, rather than selecting a surface
+> first and interpreting the visualization afterward?**
+
+That suggests several falsifiable directions.
+
+### 1. Geometry discovery instead of geometry decoration
+
+Rather than manually choosing `Sphere()`, `Torus()` or `Mobius()`, a future
+system could select among candidate geometries using training/validation evidence
+while penalizing unnecessary complexity. Conceptually,
+
+$$
+\mathcal M^* =
+\arg\min_{\mathcal M}
+\left[
+\mathcal L_{\mathrm{semantic}}
++ \lambda\mathcal L_{\mathrm{geometric}}
++ \beta C(\mathcal M)
+\right],
+$$
+
+where $C(\mathcal M)$ penalizes excessive geometric complexity. A result is only
+interesting if the selected geometry transfers to held-out examples or improves
+a downstream criterion relative to dimension-matched baselines.
+
+This is related in spirit to prior mixed-curvature/product-space work, so the
+research contribution would have to come from the **semantic setting, topology
+family, selection criterion, learned transformations, or empirical finding**—not
+from using a product manifold by itself.
+
+### 2. Semantic transformations as operators or flows
+
+Suppose a contextual encoder produces $h(w,c)$ for word/span $w$ in context $c$.
+Instead of only asking where two points lie, ask whether a transformation
+
+$$
+T_c : h(w,c_1) \mapsto h(w,c_2)
+$$
+
+has reusable geometric structure.
+
+Examples include negation, tense, modality, speaker perspective, lexical sense,
+or compositional changes. One experiment would test whether an operator estimated
+from one collection of words predicts the displacement of unseen words under the
+same semantic transformation. This is deliberately stronger than plotting an
+arrow between two points: the transformation must generalize.
+
+The vector-field view of contextual transformations in
+[Hu et al. (2026)](https://arxiv.org/abs/2607.04525) is especially relevant prior
+work. Manifold Studio's opportunity is to test explicit candidate geometries,
+intrinsic operators, transport rules and topology selection against that broader
+idea rather than claiming the idea of contextual motion itself as new.
+
+### 3. Complex phase as a testable semantic variable
+
+A complex-valued extension could represent a coordinate as
+
+$$
+z = r e^{i\theta},
+$$
+
+or use several complex coordinates such as $\mathbb C^3$. Complex embeddings
+already exist, so simply replacing real coordinates with complex coordinates
+would not establish novelty.
+
+A stronger hypothesis is that **phase change itself** carries a reproducible
+semantic role. For example, does a transformation such as negation or sense
+change produce a stable $\Delta\theta$ across words, contexts or models? Does
+phase improve prediction after controlling for parameter count and real-valued
+baselines? If not, the phase interpretation should be rejected.
+
+### 4. When would a Möbius topology be justified?
+
+A Möbius strip is non-orientable. Projecting embeddings onto it does not show
+that language is non-orientable.
+
+A more meaningful experiment would search for semantic transformation loops whose
+latent orientation cannot be represented consistently after transport around the
+loop. Evidence of an orientation-reversing cycle would provide a reason to test
+a Möbius-like quotient topology; failure to find such evidence would be equally
+informative.
+
+This turns Möbius geometry from a chosen visualization into a falsifiable
+linguistic/topological hypothesis.
+
+### 5. Beyond independent Cartesian factors
+
+The current product construction
+
+$$
+\mathcal M_1 \times \mathcal M_2 \times \cdots \times \mathcal M_k
+$$
+
+assumes a clean factorization at the level of the representation. Language may
+instead require context-dependent interactions between a base concept and its
+local semantic state.
+
+One longer-term mathematical direction is to investigate structures such as
+fiber bundles or learned local charts, where context changes how local semantic
+coordinates are attached to an underlying concept space. That is a research
+proposal, not an implemented feature or established result in this repository.
+
+### What would count as progress?
+
+A visually interesting manifold is not enough. Evidence should include some
+combination of:
+
+- independent train/validation/test splits and multi-seed reporting;
+- dimension- and parameter-matched Euclidean/PCA baselines;
+- neighborhood, retrieval and downstream-task preservation;
+- out-of-sample transformation prediction;
+- explicit topology/geometry selection without test-set tuning;
+- ablations showing whether curvature, topology, phase or factorization is doing
+  useful work;
+- counterexamples and negative results.
+
+**The long-term question is not “which beautiful surface can hold an
+embedding?” It is “which geometric structure is demanded by the transformation
+we observe, and can that structure predict something we did not fit?”**
+
+Manifold Studio provides pieces needed to investigate that question: selectable
+surfaces, product spaces, losses, tangent views, reusable transforms and
+evaluation utilities. Complex-valued coordinates, automatic geometry discovery,
+general parallel transport, semantic operators and topology inference are
+research directions rather than current capabilities.
+
+This is intentionally an invitation rather than a novelty claim. Bring a
+relevant paper, counterexample, alternative geometry, reproducible experiment or
+negative result. If a simpler Euclidean model explains the same phenomenon, that
+is an important result too.
 
 **If this question interests you, [join the conversation](https://github.com/vinitchavan/manifold-studio/issues)
 or [contribute an experiment](CONTRIBUTING.md). Let’s find out together.**
