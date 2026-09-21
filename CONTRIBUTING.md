@@ -1,5 +1,22 @@
 # Contributing to Manifold Studio
 
+## Original ownership and attribution
+
+Manifold Studio's original creator and project owner is **Vinit K. Chavan
+(@vinitchavan)**. Copyright © 2026 Vinit K. Chavan for the original project code
+and documentation. Contributions do not transfer ownership of that original work.
+Preserve the copyright and license notices required by the [MIT License](LICENSE)
+when reusing or distributing the software. Third-party materials and separately
+authored contributions retain their respective ownership and applicable terms;
+contribution alone is not a copyright assignment to the project owner.
+
+PR creation is currently restricted to repository collaborators, and there are
+no invited collaborators. Outside contributors can open an issue with a proposal
+or a link to changes in their fork for the owner's consideration. Only the owner
+currently creates and merges repository PRs; changes to `main` require a PR.
+
+## Ways to contribute
+
 Contributions from researchers, students, Python developers and frontend engineers
 are welcome. Documentation fixes and negative experimental results matter as much
 as new features. Read the [project motivation and theory](README.md) and
@@ -9,7 +26,8 @@ as new features. Read the [project motivation and theory](README.md) and
 
 1. Check [existing issues](https://github.com/vinitchavan/manifold-studio/issues).
    Open an issue for a substantial method or API change so its scope and assumptions
-   can be discussed. Small fixes can go directly to a pull request.
+   can be discussed. Collaborators may submit small fixes directly as a pull request;
+   other contributors should share a fork link in an issue.
 2. Fork the repository and create a focused branch from `main`.
 3. Install the extras needed for your change, implement it, and update examples
    or documentation when behavior changes.

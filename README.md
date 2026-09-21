@@ -2,6 +2,13 @@
 
 **Compose geometries. Inspect embeddings. Keep the full representation.**
 
+**Original creator and project owner: Vinit K. Chavan ([@vinitchavan](https://github.com/vinitchavan)).**
+Copyright © 2026 Vinit K. Chavan. Copyright in the original project code and
+documentation belongs to Vinit K. Chavan, subject to the permissions granted in
+the [MIT License](LICENSE). Sharing or contributing to this repository does not
+transfer ownership of that original work. Third-party materials and separately
+authored contributions retain their respective ownership and applicable terms.
+
 An initial Python research package by Vinit K. Chavan. Create Cartesian products
 such as `Sphere() * Torus() * Plane()`, map your vectors with a fitted transform,
 inspect 3D product/factor views and tangent directions, and export numerical data.
