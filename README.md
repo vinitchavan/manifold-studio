@@ -186,28 +186,39 @@ under independent splits and equal supervision. Use validation data for geometry
 and loss selection; reserve test data for the final assessment. See
 [validation and limitations](docs/VALIDATION.md).
 
-## Our research vision
+## Food for thought: could context change the geometry of meaning?
 
-We want an accessible laboratory for asking how geometry changes representation,
-with enough mathematical precision to support meaningful experiments.
+**What if understanding a word meant learning how its representation changes
+with context—not only where it sits in an embedding space?**
 
-- **Contextual words and spans:** inspect the same word in different sentences,
-  with correct tokenizer alignment and explicit encoder provenance.
-- **Mixtures and products:** compare one shared geometry, factorized products,
-  and cluster-specific choices under matched supervision and dimensions.
-- **Semantic motion:** test whether edits such as negation or viewpoint changes
-  induce consistent local directions or transport operators.
-- **Complex-valued representations:** investigate whether phase and magnitude
-  offer useful context structure beyond real-valued baselines.
-- **Spectral memory:** connect geometric representations to retrieval quality,
-  graph diagnostics and measured storage/context budgets.
-- **Reproducible comparison:** make failure cases, ablations and negative results
-  as easy to inspect as attractive plots.
+“Bank” beside a river and “bank” in a financial report give us a simple starting
+question. Could their relationship become easier to model through a change of
+phase, a movement across a surface, or an interaction between geometric factors?
+Could a useful representation capture both what stays consistent and what changes?
 
-These are open questions, not established discoveries or promised improvements.
-Complex-valued embeddings, automatic topology discovery, general manifold
-transport and a full SFM memory pipeline are not implemented in this release.
-The [roadmap](docs/ROADMAP.md) separates implemented features from next steps.
+One possibility is to explore complex-valued coordinates: magnitude and phase,
+or several complex planes acting together. Three complex coordinates would form
+$\\mathbb{C}^3$, a space with six real dimensions. Its quadrants and phase
+relationships offer things to investigate, but assigning them semantic meaning
+would itself need to be learned and tested. A coordinate choice alone does not
+create additional information.
+
+**The opportunity is to make geometry something we can question, compose,
+train and inspect in one place.** Manifold Studio provides a working foundation:
+selectable surfaces, product spaces, losses, tangent views and reusable exports.
+The larger question is whether richer geometric structure can reveal useful
+relationships that our current choices fail to capture. A convincing answer
+could open a meaningful new research direction.
+
+This is an invitation, not a fixed blueprint. Bring an alternative interpretation,
+a small experiment, a relevant paper, a counterexample or a better mathematical
+question. We welcome contributions that help establish where the idea is
+distinctive, where it works, and where it breaks. Complex-valued extensions are
+not implemented yet, and novelty or breakthrough performance has not been
+established.
+
+**If this question interests you, [join the conversation](https://github.com/vinitchavan/manifold-studio/issues)
+or [contribute an experiment](CONTRIBUTING.md). Let’s find out together.**
 
 ## Open for contributions
 
