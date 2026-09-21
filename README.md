@@ -11,9 +11,230 @@ optional PyTorch projection-head training and selectable research losses to the
 NumPy geometry and interactive plotting foundation. The package has not been
 published on PyPI.
 
+## Why we created Manifold Studio
+
+**What changes when we change the space in which an embedding lives?**
+
+A sentence encoder gives us a vector. We usually compare those vectors with
+cosine similarity or Euclidean distance, but geometry is also a modeling choice:
+a sphere emphasizes angular relationships, periodic coordinates introduce wraparound,
+and a product lets different factors coexist in one representation. We want to
+make those choices visible, programmable, and testable.
+
+Manifold Studio grew out of Vinit K. Chavan's manifold-constrained sentence
+embedding and Spectral Field Memory research. Experiments spread across notebooks
+made it difficult to reuse a projection, compare losses consistently, explain
+what a surface plot meant, or export a representation for another application.
+This repository brings those pieces into a shared Python package and an
+interactive workbench.
+
+Our goal is to let a student explore geometry, a researcher reproduce an
+experiment, and an embedding engineer evaluate a representation using the same
+underlying code. A compelling plot is a starting point; preserved neighborhoods,
+held-out task performance and reproducibility determine whether a method is useful.
+
+## Research papers and original implementations
+
+| Research | Paper | Original code | Connection to this project |
+|---|---|---|---|
+| **Manifold-Constrained Sentence Embeddings via Triplet Loss: Projecting Semantics onto Spheres, Tori, and Möbius Strips** — Vinit K. Chavan, 2025 | [arXiv:2505.00014](https://arxiv.org/abs/2505.00014) · [PDF](https://arxiv.org/pdf/2505.00014) | [manifold-embedding-nlp](https://github.com/vinitchavan/manifold-embedding-nlp) | Manifold projection and triplet-learning experiments motivating reusable geometry and training interfaces |
+| **Spectral Field Memory (SFM)** | [DOI:10.5281/zenodo.19159692](https://doi.org/10.5281/zenodo.19159692) · [Zenodo record](https://zenodo.org/records/19159692) | [spectral-field-memory](https://github.com/vinitchavan/spectral-field-memory) | Graph/spectral memory research motivating query-conditioned spectral objectives and future memory diagnostics |
+
+The SFM DOI above is supplied by the author; its record could not be independently
+retrieved during the documentation update. The arXiv title and author were
+verified against its record. These research links are separate from the package's
+validation: paper results should not be interpreted as reproduced results of
+Manifold Studio.
+
+The wider research direction includes **cluster-specific manifold mixtures**:
+asking whether different semantic neighborhoods benefit from different geometries.
+That is distinct from a Cartesian product shared by all points. Automatic
+per-cluster geometry selection is not implemented here.
+
+For implementation lineage, source commits, historical notebook cells and
+intentional changes, read [research provenance](docs/PROVENANCE.md) and the
+[loss-function audit](docs/LOSSES.md). This package adapts selected research ideas;
+it does not bundle private client experiments or claim to reproduce every notebook.
+
+## What you can do today
+
+| Workflow | Available now |
+|---|---|
+| Bring data | Synthetic demo, numeric embeddings, optional sentence encoding; JSON/CSV uploads in the UI and NPY input through the CLI |
+| Choose geometry | Plane, circle, sphere, cylinder, flat torus, Möbius strip and Cartesian products; up to three factors in the UI |
+| Map or learn | A fitted PCA-based mapping or an optional trainable PyTorch projection head |
+| Choose the objective | Seven loss choices, including triplet variants and a repaired experimental SMTL adaptation |
+| Explore | Rotate and zoom 3D views, inspect point text, switch product/factor views, and show projected tangent directions |
+| Measure | Neighborhood overlap, loss-component curves, and a separate Python held-out kNN evaluation utility |
+| Reuse results | Download full coordinates, fitted/trained transforms, CSV, metrics and an offline interactive HTML plot |
+| Extend the project | Add geometries, objectives, evaluation protocols or UI improvements through contributions |
+
+The current app reports **neighborhood preservation and training loss**, not an
+automatic semantic-accuracy score. The sentence encoder represents whole input
+sentences. Word-level contextual embeddings and semantic edit trajectories remain
+research/development goals.
+
+## The theory behind the workbench
+
+### 1. Source vectors, manifold coordinates and display positions
+
+These are three different objects. Given a source embedding $x_i$:
+
+$$
+x_i \in \mathbb{R}^{D}, \qquad u_i=f_\theta(x_i)\in\mathbb{R}^{d},
+\qquad z_i=\phi_{\mathcal M}(u_i)\in\mathbb{R}^{A}.
+$$
+
+Here $u_i$ contains the parameters of a point on a chosen manifold, $\phi$ is its
+parametrization, and $z_i$ is the ambient coordinate vector. A separate display
+map produces a 3D view. The numerical export preserves the full representation.
+In exploration mode, $f$ is a fitted PCA/standardization transform followed by
+parameter bounds; in training mode, it is a learned MLP followed by those bounds.
+Neither choosing a surface nor fitting PCA proves that language has that topology.
+
+### 2. Geometry changes distance
+
+On a sphere of radius $r$, normalized position vectors $\hat x,\hat y$ have
+shortest-path distance $r\arccos(\hat x^\top\hat y)$. A circle uses the shortest
+wrapped angular difference. A cylinder combines circular and height distances.
+These differ from the straight chord between two ambient points.
+
+For a product $\mathcal M=\mathcal M_1\times\cdots\times\mathcal M_k$:
+
+$$
+d_{\mathcal M}(p,q)^2=\sum_{j=1}^{k}d_{\mathcal M_j}(p_j,q_j)^2.
+$$
+
+Intrinsic and ambient dimensions add across factors. For example,
+`Sphere() * Torus() * Plane()` has six intrinsic dimensions and nine ambient
+coordinates. Its three-dimensional picture necessarily loses information.
+This product construction does not automatically learn which semantic attribute
+belongs to which factor.
+
+### 3. Tangents describe local directions
+
+At a regular parameter point, the parametrization Jacobian $J(u)$ spans the
+tangent space. The orthogonal projection of an ambient vector $v$ is
+$J(u)J(u)^+v$, where $+$ denotes the pseudoinverse. The implementation handles
+sphere tangents directly from its normal, including at coordinate poles.
+
+The displayed arrows project displacements toward a selected point. They help
+inspect local directions; they are not learned meanings such as “negate this
+sentence,” and are not generic geodesic paths. A true sphere log map is available;
+general parallel transport is future work.
+
+### 4. Triplets teach relative relationships
+
+An anchor $a$, positive $p$, and negative $n$ specify which pair should be closer:
+
+$$
+\mathcal L_{\mathrm{triplet}}=\frac1T\sum_{t=1}^{T}
+\max\left(0,d(a_t,p_t)-d(a_t,n_t)+m\right).
+$$
+
+The distance choice matters. Our original-repository adaptation uses squared
+ambient distances; intrinsic triplets use supported manifold distances. Margin
+$m$ is expressed in the units of that selected objective. Supervision must come
+from training data, labels, or an explicitly described mining rule.
+
+### 5. Spectral objectives describe how query energy is distributed
+
+SFM motivates representing a collection as a graph, decomposing its Laplacian
+into modes, and measuring where query-conditioned information falls in that
+spectrum. In this package's fixed-graph adaptation, $U$ is an orthonormal
+Laplacian eigenbasis built from the training source vectors. For projected
+query $q$, weights $g_i=\operatorname{softmax}_i(-d(z_i,q)/\tau)$ produce
+$F_i=g_i z_i$. Mode energies are
+
+$$
+E_k=\left\|(U^\top F)_k\right\|_2^2,\qquad
+P_k=\frac{E_k}{\sum_j E_j}.
+$$
+
+The separation term penalizes the energy fraction in high-frequency modes;
+the concentration term is normalized entropy $-\sum_kP_k\log P_k/\log N$.
+Calling high frequencies “noise” is a modeling hypothesis to evaluate, not an
+intrinsic property of every text graph. Basis signs do not affect energies;
+rotations in repeated-eigenvalue subspaces can affect mode-wise entropy.
+
+Our experimental combined objective is
+
+$$
+\mathcal L_{\mathrm{SMTL}}=\mathcal L_{\mathrm{triplet}}
++\alpha\mathcal L_{\mathrm{separation}}
++\beta\mathcal L_{\mathrm{concentration}}
++\gamma\mathcal L_{\mathrm{alignment}}.
+$$
+
+Alignment compares normalized manifold and source cosine distances; the
+historical name “curvature alignment” does not make it a curvature estimator.
+The graph/basis are detached, while gradients flow through the projected field
+and query. This is not end-to-end differentiation through graph construction.
+See [the exact formulas and API contracts](docs/LOSSES.md) before using these
+losses in a paper or benchmark.
+
+### 6. Visualization, topology and useful semantics are separate questions
+
+A Möbius strip is non-orientable, but displaying embeddings on it does not show
+that polysemy or negation has Möbius topology. Periodic coordinates may be useful
+without proving that language is periodic. Likewise, reduced spectral entropy
+can accompany representation collapse. Our synthetic training tutorial actually
+shows lower loss alongside worse held-out accuracy than its source baseline.
+
+Evaluate source embeddings, dimension-matched baselines and learned geometries
+under independent splits and equal supervision. Use validation data for geometry
+and loss selection; reserve test data for the final assessment. See
+[validation and limitations](docs/VALIDATION.md).
+
+## Our research vision
+
+We want an accessible laboratory for asking how geometry changes representation,
+with enough mathematical precision to support meaningful experiments.
+
+- **Contextual words and spans:** inspect the same word in different sentences,
+  with correct tokenizer alignment and explicit encoder provenance.
+- **Mixtures and products:** compare one shared geometry, factorized products,
+  and cluster-specific choices under matched supervision and dimensions.
+- **Semantic motion:** test whether edits such as negation or viewpoint changes
+  induce consistent local directions or transport operators.
+- **Complex-valued representations:** investigate whether phase and magnitude
+  offer useful context structure beyond real-valued baselines.
+- **Spectral memory:** connect geometric representations to retrieval quality,
+  graph diagnostics and measured storage/context budgets.
+- **Reproducible comparison:** make failure cases, ablations and negative results
+  as easy to inspect as attractive plots.
+
+These are open questions, not established discoveries or promised improvements.
+Complex-valued embeddings, automatic topology discovery, general manifold
+transport and a full SFM memory pipeline are not implemented in this release.
+The [roadmap](docs/ROADMAP.md) separates implemented features from next steps.
+
+## Open for contributions
+
+**Researchers, students, ML engineers and frontend developers are welcome.**
+You can contribute a mathematical correction, a documented experiment, a new
+geometry or loss, a reproducibility fix, an accessibility improvement, or a
+clearer example. Negative results and well-explained limitations are useful
+contributions too.
+
+Start with the [contribution guide](CONTRIBUTING.md). Check existing
+[issues](https://github.com/vinitchavan/manifold-studio/issues), propose a focused
+change, and submit a pull request. For new research methods, include the formula,
+source attribution, assumptions, tests and an evaluation plan. Do not describe a
+method as novel or superior solely because its visualizations look convincing.
+
+Good starting tasks: document a geometry edge case, improve mobile graph controls,
+add an independent gradient check, or provide a small reproducible held-out
+experiment. The package source is distributed under the [MIT license](LICENSE);
+external datasets, pretrained weights and dependencies retain their own terms.
+
 ## Run the web playground
 
+Clone the repository and enter its root first:
+
 ```bash
+git clone https://github.com/vinitchavan/manifold-studio.git
+cd manifold-studio
 python -m pip install -e ".[viz,train]"
 python -m pip install -r backend/requirements.txt
 python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
@@ -271,6 +492,11 @@ does not automatically reproduce intrinsic manifold rankings.
 | `src/manifold_studio/evaluation.py` | Neighborhood and held-out classification probes |
 | `src/manifold_studio/encoders.py` | Optional sentence-transformer adapter |
 | `src/manifold_studio/cli.py` | Numerical demo and matrix-import command |
+| `src/manifold_studio/losses.py` | Selectable objectives and fixed spectral basis |
+| `src/manifold_studio/torch_geometry.py` | Differentiable geometry operations |
+| `src/manifold_studio/training.py` | Trainable projection head and portable weights |
+| `backend/` | FastAPI routes and integration tests |
+| `frontend/` | Browser controls, plots and API interaction |
 | `examples/` | Runnable numerical and text examples |
 | `notebooks/` | Package-first walkthrough |
 | `tests/` | Mathematical invariants and integration tests |
@@ -298,14 +524,24 @@ cd manifold-studio
 python -m pip install -e '.[viz]'
 ```
 
-## Research roots and next steps
+## Citing the research
 
-This package develops the product direction motivated by Vinit's
-[manifold embedding research](https://github.com/vinitchavan/manifold-embedding-nlp)
-and [Spectral Field Memory](https://github.com/vinitchavan/spectral-field-memory).
-It uses a new small numerical implementation; old notebook performance numbers
-are not claimed as results of this package. See `docs/PROVENANCE.md`.
+If this project informs your work, cite the relevant paper linked above and
+identify the Manifold Studio commit/version used in your experiments. The software
+adapts research methods and does not have a separate archival software DOI yet.
 
-Next: a playground UI, contextual token inspection, trained heads, validated
-intrinsic mesh paths, spectral-memory diagnostics, and experimental transport
-operators. The first release does not include these future components.
+```bibtex
+@misc{chavan2025manifold,
+  title={Manifold-Constrained Sentence Embeddings via Triplet Loss: Projecting Semantics onto Spheres, Tori, and Möbius Strips},
+  author={Chavan, Vinit K.},
+  year={2025},
+  eprint={2505.00014},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2505.00014}
+}
+```
+
+For SFM, use the citation metadata exported by its
+[Zenodo record](https://zenodo.org/records/19159692) to preserve the exact deposited
+version and author information.
